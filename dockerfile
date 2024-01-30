@@ -1,37 +1,41 @@
-# Docker Compose version
-version: "3"
-
-# Define services (containers to be created)
-services:
-  # Service name: pihole
-  pihole:
-    # Name of the container instance
-    container_name: pihole
-
-    # Image to use for this container
-    # Use the specified version of the pihole image
-    image: pihole/pihole:2024.01.0
-
-    # Expose and map ports (host:container)
-    ports:
-      - "53:53/tcp" # DNS (TCP)
-      - "53:53/udp" # DNS (UDP)
-      - "7300:8888/tcp" # Web UI HTTP
-
-    # Environment variables
-    environment:
-      TZ: "Asia/Bangkok" # Time Zone; Update this to your time zone
-      WEBPASSWORD: "S@m3tim3" # Admin password for web UI; Change this to your desired admin password
-
-    # Mount volumes for persistent data
-    volumes:
-      - "/data/pihole/data/pihole:/etc/pihole" # Pi-hole data
-      - "/data/pihole/data/dnsmasq:/etc/dnsmasq.d" # dnsmasq data
-
-    # Restart policy for the container when it exits
-    restart: unless-stopped
-
-    # DNS servers for this container to use
-    dns:
-      - 127.0.0.1 # Localhost for internal resolution
-      - 1.1.1.1 # Cloudflare DNS for external resolution
+{
+    "services": [
+        {
+            "type": "app",
+            "data": {
+                "projectName": "pihole",
+                "serviceName": "pihole",
+                "source": {
+                    "type": "image",
+                    "image": "pihole/pihole:2024.01.0"
+                },
+                "ports": [
+                    {
+                        "published": 53,
+                        "target": 53
+                    },
+                    {
+                        "published": 53,
+                        "target": 53
+                    },
+                    {
+                        "published": 7300,
+                        "target": 9999
+                    }
+                ],
+                "mounts": [
+                    {
+                        "type": "bind",
+                        "hostPath": "/data/pihole/data/pihole",
+                        "mountPath": "/etc/pihole"
+                    },
+                    {
+                        "type": "bind",
+                        "hostPath": "/data/pihole/data/dnsmasq",
+                        "mountPath": "/etc/dnsmasq.d"
+                    }
+                ]
+            }
+        }
+    ]
+}
