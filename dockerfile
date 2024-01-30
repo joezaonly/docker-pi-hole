@@ -1,24 +1,37 @@
+# Docker Compose version
 version: "3"
 
-# More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
+# Define services (containers to be created)
 services:
+  # Service name: pihole
   pihole:
+    # Name of the container instance
     container_name: pihole
-    image: pihole/pihole:latest
-    # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
+
+    # Image to use for this container
+    # Use the specified version of the pihole image
+    image: pihole/pihole:2024.01.0
+
+    # Expose and map ports (host:container)
     ports:
-      - "53:53/tcp"
-      - "53:53/udp"
-      - "67:67/udp" # Only required if you are using Pi-hole as your DHCP server
-      - "80:80/tcp"
+      - "53:53/tcp" # DNS (TCP)
+      - "53:53/udp" # DNS (UDP)
+      - "7300:8888/tcp" # Web UI HTTP
+
+    # Environment variables
     environment:
-      TZ: 'Asia/Bangkok'
-      # WEBPASSWORD: 'set a secure password here or it will be random'
-    # Volumes store your data between container upgrades
+      TZ: "Asia/Bangkok" # Time Zone; Update this to your time zone
+      WEBPASSWORD: "S@m3tim3" # Admin password for web UI; Change this to your desired admin password
+
+    # Mount volumes for persistent data
     volumes:
-      - './etc-pihole:/etc/pihole'
-      - './etc-dnsmasq.d:/etc/dnsmasq.d'
-    #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
-    cap_add:
-      - NET_ADMIN # Required if you are using Pi-hole as your DHCP server, else not needed
+      - "/data/pihole/data/pihole:/etc/pihole" # Pi-hole data
+      - "/data/pihole/data/dnsmasq:/etc/dnsmasq.d" # dnsmasq data
+
+    # Restart policy for the container when it exits
     restart: unless-stopped
+
+    # DNS servers for this container to use
+    dns:
+      - 127.0.0.1 # Localhost for internal resolution
+      - 1.1.1.1 # Cloudflare DNS for external resolution
